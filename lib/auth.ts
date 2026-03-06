@@ -6,6 +6,7 @@ import User from "@/models/User";
 import type { Role } from "@/types";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET || "gymapp-secret-dev-2025-change-in-production",
   providers: [
     Credentials({
       name: "credentials",

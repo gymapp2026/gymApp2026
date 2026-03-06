@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "re_placeholder_key");
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,10 +26,12 @@ export async function POST(req: NextRequest) {
     user.resetTokenExpiry = expiry;
     await user.save();
 
-    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
+    const appUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const resetUrl = `${appUrl}/reset-password?token=${token}`;
+    const fromEmail = process.env.EMAIL_FROM || "noreply@gymapp.com";
 
     await resend.emails.send({
-      from: process.env.EMAIL_FROM!,
+      from: fromEmail,
       to: user.email,
       subject: "Recuperar contraseña - GymApp",
       html: `

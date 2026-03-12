@@ -2,9 +2,12 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Play, Dumbbell } from "lucide-react";
+import { Search, Play, Dumbbell, Plus } from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { IExercise } from "@/types";
 
 const CATEGORIES = ["Todos", "Pecho", "Espalda", "Piernas", "Hombros", "Brazos", "Core", "Cardio"];
@@ -16,6 +19,8 @@ const DIFFICULTY_COLORS = {
 const DIFFICULTY_LABELS = { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzado" };
 
 export default function ExerciseList() {
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "admin" || (session?.user as any)?.role === "superadmin";
   const [exercises, setExercises] = useState<IExercise[]>([]);
   const [filtered, setFiltered] = useState<IExercise[]>([]);
   const [search, setSearch] = useState("");
@@ -43,6 +48,11 @@ export default function ExerciseList() {
 
   return (
     <div className="space-y-4">
+      {isAdmin && (
+        <Button asChild size="sm" className="bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl">
+          <Link href="/admin/exercises"><Plus size={14} className="mr-1" /> Nuevo ejercicio</Link>
+        </Button>
+      )}
       <div className="relative">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
         <Input

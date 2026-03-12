@@ -11,6 +11,8 @@ function newId() {
 const users: any[] = [];
 const exercises: any[] = [];
 const routines: any[] = [];
+const gymSessions: any[] = [];
+const gymSettingsStore: any[] = [{ _id: "default", slug: "default", name: "GymApp", emoji: "🏋️" }];
 
 // ─── SEED SUPERADMIN ──────────────────────────────────────────────
 const SUPERADMIN_HASH = bcrypt.hashSync("superadmin123", 10);
@@ -186,6 +188,39 @@ export const MemoryExercise = {
     const docs = data.map((d) => ({ _id: newId(), ...d, createdAt: new Date(), updatedAt: new Date() }));
     exercises.push(...docs);
     return docs;
+  },
+};
+
+// ─── MEMORY GYM SESSION ───────────────────────────────────────────
+export const MemoryGymSession = {
+  find(query: any = {}) {
+    const result = gymSessions.filter((s) => matchQuery(s, query));
+    return new MemoryQuery(result);
+  },
+  async findOne(query: any) {
+    return gymSessions.find((s) => matchQuery(s, query)) || null;
+  },
+  async create(data: any) {
+    const doc = { _id: newId(), ...data, createdAt: new Date() };
+    gymSessions.push(doc);
+    return doc;
+  },
+};
+
+// ─── MEMORY GYM SETTINGS ──────────────────────────────────────────
+export const MemoryGymSettings = {
+  async findOne(query: any) {
+    return gymSettingsStore.find((s) => matchQuery(s, query)) || null;
+  },
+  async findOneAndUpdate(query: any, data: any, _options?: any) {
+    const idx = gymSettingsStore.findIndex((s) => matchQuery(s, query));
+    if (idx < 0) {
+      const doc = { _id: newId(), ...query, ...data };
+      gymSettingsStore.push(doc);
+      return doc;
+    }
+    gymSettingsStore[idx] = { ...gymSettingsStore[idx], ...data };
+    return gymSettingsStore[idx];
   },
 };
 

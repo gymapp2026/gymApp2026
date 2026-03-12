@@ -1,15 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Dumbbell, Plus, ChevronRight } from "lucide-react";
+import { ClipboardList, Dumbbell, Plus, ChevronRight, CalendarCheck, Flame } from "lucide-react";
 import Link from "next/link";
 import { IRoutine } from "@/types";
+import { toast } from "sonner";
 
 export default function DashboardHome() {
   const [routines, setRoutines] = useState<IRoutine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [gymCount, setGymCount] = useState(0);
+  const [doneToday, setDoneToday] = useState(false);
+  const [marking, setMarking] = useState(false);
 
   useEffect(() => {
     fetch("/api/routines")
@@ -19,7 +22,36 @@ export default function DashboardHome() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    fetch("/api/gym-sessions")
+      .then((r) => r.json())
+      .then((data) => {
+        setGymCount(data.count ?? 0);
+        setDoneToday(data.doneToday ?? false);
+      })
+      .catch(() => {});
   }, []);
+
+  const markGymDay = async () => {
+    if (doneToday || marking) return;
+    setMarking(true);
+    try {
+      const res = await fetch("/api/gym-sessions", { method: "POST" });
+      if (res.ok) {
+        setDoneToday(true);
+        setGymCount((c) => c + 1);
+        toast.success("¡Día de gym registrado! 💪");
+      }
+    } catch {
+      toast.error("Error al registrar");
+    } finally {
+      setMarking(false);
+    }
+  };
+
+  const plannedDays = routines.length > 0
+    ? Math.max(...routines.map((r) => r.days.length))
+    : 0;
 
   return (
     <div className="space-y-5">
@@ -50,6 +82,42 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Tracking días de gym */}
+      <Card className="bg-zinc-900 border-zinc-800">
+        <CardContent className="p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+              <CalendarCheck size={20} className="text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-zinc-50">
+                Días de gym{" "}
+                <span className="text-yellow-400">
+                  {gymCount}/{plannedDays || "—"}
+                </span>{" "}
+                <span className="text-zinc-500 font-normal">esta semana</span>
+              </p>
+              <p className="text-xs text-zinc-500">
+                {doneToday ? "✓ Gym hecho hoy" : "¿Ya entrenaste hoy?"}
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={markGymDay}
+            disabled={doneToday || marking}
+            className={`rounded-xl font-semibold flex-shrink-0 ${
+              doneToday
+                ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                : "bg-yellow-500 hover:bg-yellow-400 text-zinc-950"
+            }`}
+          >
+            <Flame size={14} className="mr-1" />
+            {doneToday ? "Listo" : "Marcar"}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Acceso rápido */}
       <div className="grid grid-cols-2 gap-3">

@@ -8,6 +8,13 @@ const greetings = [
   "Sin excusas, vamos a romperla 🚀",
   "Cada rep te acerca a tu meta 🎯",
   "Hoy es un buen día para sudar 💦",
+  "No pares hasta que estés orgulloso 🏆",
+  "Un día más, una versión mejor 🌟",
+  "El único mal entrenamiento es el que no hiciste 💡",
+  "Confía en el proceso 🔄",
+  "Hoy duele, mañana se nota 💥",
+  "La constancia vence al talento 💎",
+  "Más peso, más fuerza, más vos 🦾",
 ];
 
 export default function Claudio() {
@@ -31,7 +38,6 @@ export default function Claudio() {
         🏋️
       </motion.div>
       <div>
-        <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Claudio dice</p>
         <p className="text-lg font-bold text-zinc-50">Hola, {name}!</p>
         <p className="text-sm text-zinc-400">{greeting}</p>
       </div>

@@ -6,18 +6,20 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useGymSettings } from "@/hooks/useGymSettings";
 
 export default function TopBar() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { name, emoji } = useGymSettings();
   const initials = session?.user?.name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   return (
     <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800 h-14 flex items-center px-4 md:pl-64">
       <div className="flex items-center justify-between w-full max-w-2xl mx-auto md:max-w-full">
         <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
-          <span className="text-xl">🏋️</span>
-          <span className="font-bold text-sm text-zinc-50">GymApp</span>
+          <span className="text-xl">{emoji}</span>
+          <span className="font-bold text-sm text-zinc-50">{name}</span>
         </Link>
         <div className="hidden md:block" />
         <DropdownMenu>

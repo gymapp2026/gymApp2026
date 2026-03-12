@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Shield, Users, Dumbbell } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import GymSettingsForm from "@/components/admin/GymSettingsForm";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -50,6 +51,8 @@ export default async function AdminPage() {
           </Link>
         )}
       </div>
+
+      <GymSettingsForm />
     </div>
   );
 }

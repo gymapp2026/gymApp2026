@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Home, Dumbbell, ClipboardList, User, Shield, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { useGymSettings } from "@/hooks/useGymSettings";
 
 const userNav = [
   { href: "/dashboard", label: "Inicio", icon: Home },
@@ -25,6 +26,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = (session?.user as any)?.role;
+  const { name, emoji } = useGymSettings();
 
   const allNav = [
     ...userNav,
@@ -35,8 +37,8 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 min-h-screen bg-zinc-900 border-r border-zinc-800 p-4 gap-1 fixed left-0 top-0">
       <div className="flex items-center gap-2 px-2 py-4 mb-4">
-        <span className="text-2xl">🏋️</span>
-        <span className="font-bold text-lg text-zinc-50">GymApp</span>
+        <span className="text-2xl">{emoji}</span>
+        <span className="font-bold text-lg text-zinc-50">{name}</span>
       </div>
       {allNav.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));

@@ -8,7 +8,7 @@ export default function RoutinesPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-zinc-50">Mis rutinas</h1>
-        <Button asChild size="sm" className="bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl">
+        <Button asChild size="sm" className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-semibold rounded-xl">
           <Link href="/dashboard/routines/new">
             <Plus size={16} className="mr-1" /> Nueva
           </Link>

@@ -42,7 +42,7 @@ export default function ForgotPasswordForm() {
         <div className="text-center space-y-4">
           <div className="text-4xl">📧</div>
           <p className="text-zinc-300">Si el email existe en nuestra base, recibirás un link para resetear tu contraseña.</p>
-          <Link href="/login" className="text-green-400 text-sm flex items-center justify-center gap-1">
+          <Link href="/login" className="text-[#0dcf0d] text-sm flex items-center justify-center gap-1">
             <ArrowLeft size={14} /> Volver al login
           </Link>
         </div>
@@ -62,7 +62,7 @@ export default function ForgotPasswordForm() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl"
+            className="w-full h-12 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl"
           >
             {loading ? "Enviando..." : "Enviar link"}
           </Button>

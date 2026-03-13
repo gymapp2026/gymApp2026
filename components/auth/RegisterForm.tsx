@@ -93,7 +93,7 @@ export default function RegisterForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl text-base"
+          className="w-full h-12 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl text-base"
         >
           {loading ? "Creando cuenta..." : "Crear cuenta"}
         </Button>
@@ -101,7 +101,7 @@ export default function RegisterForm() {
 
       <p className="text-center text-sm text-zinc-500">
         ¿Ya tenés cuenta?{" "}
-        <Link href="/login" className="text-green-400 hover:text-green-300 font-medium">
+        <Link href="/login" className="text-[#0dcf0d] hover:text-[#0ab80a] font-medium">
           Ingresá
         </Link>
       </p>

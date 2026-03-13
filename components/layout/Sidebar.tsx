@@ -26,7 +26,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = (session?.user as any)?.role;
-  const { name, emoji } = useGymSettings();
+  const { name } = useGymSettings();
 
   const allNav = [
     ...userNav,
@@ -36,8 +36,8 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex flex-col w-60 min-h-screen bg-zinc-900 border-r border-zinc-800 p-4 gap-1 fixed left-0 top-0">
-      <div className="flex items-center gap-2 px-2 py-4 mb-4">
-        <span className="text-2xl">{emoji}</span>
+      <div className="flex items-center gap-3 px-2 py-4 mb-4">
+        <img src="/logo.jpg" alt={name} className="w-9 h-9 rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
         <span className="font-bold text-lg text-zinc-50">{name}</span>
       </div>
       {allNav.map(({ href, label, icon: Icon }) => {
@@ -49,7 +49,7 @@ export default function Sidebar() {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
               isActive
-                ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                ? "bg-[#0dcf0d]/10 text-[#0dcf0d] border border-[#0dcf0d]/20"
                 : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
             )}
           >

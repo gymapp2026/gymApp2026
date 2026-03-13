@@ -11,21 +11,21 @@ import { useGymSettings } from "@/hooks/useGymSettings";
 export default function TopBar() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { name, emoji } = useGymSettings();
+  const { name } = useGymSettings();
   const initials = session?.user?.name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   return (
     <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800 h-14 flex items-center px-4 md:pl-64">
       <div className="flex items-center justify-between w-full max-w-2xl mx-auto md:max-w-full">
         <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
-          <span className="text-xl">{emoji}</span>
+          <img src="/logo.jpg" alt={name} className="w-7 h-7 rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
           <span className="font-bold text-sm text-zinc-50">{name}</span>
         </Link>
         <div className="hidden md:block" />
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar className="w-9 h-9 cursor-pointer">
-              <AvatarFallback className="bg-green-500/20 text-green-400 text-xs font-bold">
+              <AvatarFallback className="bg-[#0dcf0d]/20 text-[#0dcf0d] text-xs font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>

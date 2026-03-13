@@ -1,7 +1,11 @@
+import { config } from "dotenv";
+import { resolve } from "path";
+config({ path: resolve(process.cwd(), ".env.local") });
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const MONGODB_URI = "mongodb://localhost:27017/gymapp";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/gymapp";
 
 const UserSchema = new mongoose.Schema({ name: String, email: String, password: String, role: String, plan: String }, { timestamps: true });
 const ExerciseSchema = new mongoose.Schema({ name: String, category: String, muscleGroup: [String], description: String, videoUrl: String, gifUrl: String, difficulty: String }, { timestamps: true });
@@ -31,7 +35,7 @@ const exercises = [
 
 async function seed() {
   await mongoose.connect(MONGODB_URI);
-  console.log("Conectado a MongoDB local");
+  console.log("Conectado a:", MONGODB_URI.substring(0, 40) + "...");
 
   await Exercise.deleteMany({});
   await Exercise.insertMany(exercises);
@@ -40,7 +44,7 @@ async function seed() {
   const existing = await User.findOne({ email: "superadmin@gymapp.com" });
   if (!existing) {
     const hashed = await bcrypt.hash("superadmin123", 12);
-    await User.create({ name: "Super Admin", email: "superadmin@gymapp.com", password: hashed, role: "superadmin", plan: "pro" });
+    await User.create({ name: "German", email: "superadmin@gymapp.com", password: hashed, role: "superadmin", plan: "pro" });
     console.log("Super admin creado: superadmin@gymapp.com / superadmin123");
   }
 

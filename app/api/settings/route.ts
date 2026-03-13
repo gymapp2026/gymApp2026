@@ -7,7 +7,7 @@ export async function GET() {
   await connectDB();
   const settings = await GymSettings.findOne({ slug: "default" });
   return NextResponse.json({
-    name: settings?.name ?? "GymApp",
+    name: settings?.name ?? "FullFutbol",
     emoji: settings?.emoji ?? "🏋️",
   });
 }

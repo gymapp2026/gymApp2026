@@ -12,7 +12,7 @@ import { IExercise } from "@/types";
 
 const CATEGORIES = ["Todos", "Pecho", "Espalda", "Piernas", "Hombros", "Brazos", "Core", "Cardio"];
 const DIFFICULTY_COLORS = {
-  beginner: "bg-green-500/10 text-green-400 border-green-500/20",
+  beginner: "bg-[#0dcf0d]/10 text-[#0dcf0d] border-[#0dcf0d]/20",
   intermediate: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   advanced: "bg-red-500/10 text-red-400 border-red-500/20",
 };
@@ -49,7 +49,7 @@ export default function ExerciseList() {
   return (
     <div className="space-y-4">
       {isAdmin && (
-        <Button asChild size="sm" className="bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl">
+        <Button asChild size="sm" className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-semibold rounded-xl">
           <Link href="/admin/exercises"><Plus size={14} className="mr-1" /> Nuevo ejercicio</Link>
         </Button>
       )}
@@ -70,7 +70,7 @@ export default function ExerciseList() {
             onClick={() => setCategory(cat)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               category === cat
-                ? "bg-green-500 text-zinc-950"
+                ? "bg-[#0dcf0d] text-zinc-950"
                 : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
             }`}
           >
@@ -113,7 +113,7 @@ export default function ExerciseList() {
                 </div>
                 {ex.videoUrl && (
                   <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                    <Play size={14} className="text-green-400" />
+                    <Play size={14} className="text-[#0dcf0d]" />
                   </div>
                 )}
               </CardContent>

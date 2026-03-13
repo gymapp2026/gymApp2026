@@ -14,7 +14,7 @@ export default async function AdminPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <Shield size={20} className="text-green-400" />
+          <Shield size={20} className="text-[#0dcf0d]" />
           <h1 className="text-xl font-bold text-zinc-50">Panel de administración</h1>
         </div>
         <p className="text-sm text-zinc-500">Gestioná el contenido de la plataforma</p>

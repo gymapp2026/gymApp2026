@@ -7,7 +7,7 @@ import SessionWrapper from "@/components/layout/SessionWrapper";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GymApp - Tu entrenamiento, tu camino",
+  title: "FullFutbol - Tu entrenamiento, tu camino",
   description: "Armá tus rutinas, explorá ejercicios y alcanzá tus objetivos con la ayuda de Claudio.",
   manifest: "/manifest.json",
 };

@@ -59,8 +59,8 @@ export default function DashboardHome() {
       <div className="grid grid-cols-2 gap-3">
         <Card className="bg-zinc-900 border-zinc-800">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-              <ClipboardList size={20} className="text-green-400" />
+            <div className="w-10 h-10 rounded-xl bg-[#0dcf0d]/10 flex items-center justify-center">
+              <ClipboardList size={20} className="text-[#0dcf0d]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-zinc-50">{routines.length}</p>
@@ -121,7 +121,7 @@ export default function DashboardHome() {
 
       {/* Acceso rápido */}
       <div className="grid grid-cols-2 gap-3">
-        <Button asChild className="h-14 bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl">
+        <Button asChild className="h-14 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-semibold rounded-xl">
           <Link href="/dashboard/routines/new">
             <Plus size={18} className="mr-1" /> Nueva rutina
           </Link>
@@ -137,7 +137,7 @@ export default function DashboardHome() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold text-zinc-200">Mis rutinas</h2>
-          <Link href="/dashboard/routines" className="text-xs text-green-400 flex items-center gap-1">
+          <Link href="/dashboard/routines" className="text-xs text-[#0dcf0d] flex items-center gap-1">
             Ver todas <ChevronRight size={14} />
           </Link>
         </div>
@@ -152,7 +152,7 @@ export default function DashboardHome() {
           <Card className="bg-zinc-900 border-zinc-800 border-dashed">
             <CardContent className="p-6 text-center">
               <p className="text-zinc-500 text-sm">Todavía no tenés rutinas creadas.</p>
-              <Button asChild size="sm" className="mt-3 bg-green-500 hover:bg-green-600 text-zinc-950">
+              <Button asChild size="sm" className="mt-3 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950">
                 <Link href="/dashboard/routines/new">Crear mi primera rutina</Link>
               </Button>
             </CardContent>

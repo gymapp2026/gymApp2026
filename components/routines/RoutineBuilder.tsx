@@ -190,7 +190,7 @@ export default function RoutineBuilder() {
       <Button
         onClick={save}
         disabled={saving}
-        className="w-full h-12 bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl text-base"
+        className="w-full h-12 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl text-base"
       >
         {saving ? "Guardando..." : "Guardar rutina"}
       </Button>

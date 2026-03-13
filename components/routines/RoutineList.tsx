@@ -50,7 +50,7 @@ export default function RoutineList() {
       <CardContent className="p-8 text-center">
         <Dumbbell size={40} className="mx-auto mb-3 text-zinc-700" />
         <p className="text-zinc-500 text-sm mb-4">No tenés rutinas todavía.</p>
-        <Button asChild size="sm" className="bg-green-500 hover:bg-green-600 text-zinc-950">
+        <Button asChild size="sm" className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950">
           <Link href="/dashboard/routines/new"><Plus size={14} className="mr-1" /> Crear rutina</Link>
         </Button>
       </CardContent>
@@ -89,7 +89,7 @@ export default function RoutineList() {
                   {routine.description && <p className="text-sm text-zinc-400">{routine.description}</p>}
                   {routine.days.map((day, i) => (
                     <div key={i}>
-                      <p className="text-xs font-semibold text-green-400 uppercase tracking-wider mb-2">{day.day}</p>
+                      <p className="text-xs font-semibold text-[#0dcf0d] uppercase tracking-wider mb-2">{day.day}</p>
                       <div className="space-y-1.5">
                         {day.exercises.map((ex, j) => {
                           const key = `${routine._id}-${i}-${j}`;
@@ -97,11 +97,11 @@ export default function RoutineList() {
                           const exData = (ex as any).exerciseId;
                           const hasMedia = exData?.videoUrl || exData?.gifUrl;
                           return (
-                            <div key={j} className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors ${done ? "bg-green-500/10" : "bg-zinc-800/50"}`}>
+                            <div key={j} className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors ${done ? "bg-[#0dcf0d]/10" : "bg-zinc-800/50"}`}>
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <button
                                   onClick={() => toggleEx(key)}
-                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${done ? "border-green-500 bg-green-500" : "border-zinc-600 hover:border-green-500"}`}
+                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${done ? "border-[#0dcf0d] bg-[#0dcf0d]" : "border-zinc-600 hover:border-[#0dcf0d]"}`}
                                 >
                                   {done && <Check size={10} className="text-zinc-950" strokeWidth={3} />}
                                 </button>
@@ -116,7 +116,7 @@ export default function RoutineList() {
                                     onClick={() => setVideoEx({ name: exData.name, videoUrl: exData.videoUrl, gifUrl: exData.gifUrl, description: exData.description })}
                                     className="w-7 h-7 rounded-lg bg-zinc-700 hover:bg-zinc-600 flex items-center justify-center transition-colors"
                                   >
-                                    <Play size={12} className="text-green-400" />
+                                    <Play size={12} className="text-[#0dcf0d]" />
                                   </button>
                                 )}
                               </div>

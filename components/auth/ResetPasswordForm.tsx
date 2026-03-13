@@ -63,7 +63,7 @@ export default function ResetPasswordForm() {
             className="mt-1 bg-zinc-900 border-zinc-700 text-zinc-50 placeholder:text-zinc-600 h-12" />
         </div>
         <Button type="submit" disabled={loading}
-          className="w-full h-12 bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl">
+          className="w-full h-12 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl">
           {loading ? "Actualizando..." : "Actualizar contraseña"}
         </Button>
       </form>

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: fromEmail,
       to: user.email,
-      subject: "Recuperar contraseña - GymApp",
+      subject: "Recuperar contraseña - FullFutbol",
       html: `
         <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto;">
           <h2>Recuperar contraseña</h2>

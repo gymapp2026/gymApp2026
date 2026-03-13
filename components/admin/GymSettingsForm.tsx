@@ -16,7 +16,7 @@ export default function GymSettingsForm() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
-        setName(data.name ?? "GymApp");
+        setName(data.name ?? "FullFutbol");
         setEmoji(data.emoji ?? "🏋️");
       })
       .catch(() => {});
@@ -44,7 +44,7 @@ export default function GymSettingsForm() {
     <Card className="bg-zinc-900 border-zinc-800">
       <CardContent className="p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Settings size={18} className="text-green-400" />
+          <Settings size={18} className="text-[#0dcf0d]" />
           <p className="font-semibold text-zinc-100">Configuración del Gym</p>
         </div>
         <form onSubmit={save} className="space-y-3">
@@ -64,7 +64,7 @@ export default function GymSettingsForm() {
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="GymApp"
+                placeholder="FullFutbol"
                 required
                 className="mt-1 bg-zinc-800 border-zinc-700 text-zinc-50 h-10"
                 maxLength={30}
@@ -81,7 +81,7 @@ export default function GymSettingsForm() {
               type="submit"
               size="sm"
               disabled={saving}
-              className="ml-auto bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl"
+              className="ml-auto bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-semibold rounded-xl"
             >
               {saving ? "Guardando..." : "Guardar"}
             </Button>

@@ -6,7 +6,7 @@ interface GymSettings {
   emoji: string;
 }
 
-const DEFAULTS: GymSettings = { name: "GymApp", emoji: "🏋️" };
+const DEFAULTS: GymSettings = { name: "FullFutbol", emoji: "🏋️" };
 
 export function useGymSettings() {
   const [settings, setSettings] = useState<GymSettings>(DEFAULTS);

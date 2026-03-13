@@ -30,7 +30,9 @@ export default function LoginForm() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="text-center">
-        <div className="text-5xl mb-3">🏋️</div>
+        <div className="flex justify-center mb-3">
+          <img src="/logo.jpg" alt="Logo" className="w-20 h-20 rounded-full object-cover border-2 border-[#0dcf0d]/40" />
+        </div>
         <h1 className="text-2xl font-bold text-zinc-50">Bienvenido de vuelta</h1>
         <p className="text-zinc-500 text-sm mt-1">Ingresá a tu cuenta</p>
       </div>
@@ -50,7 +52,7 @@ export default function LoginForm() {
         <div>
           <div className="flex items-center justify-between">
             <Label className="text-zinc-300 text-sm">Contraseña</Label>
-            <Link href="/forgot-password" className="text-xs text-green-400 hover:text-green-300">
+            <Link href="/forgot-password" className="text-xs text-[#0dcf0d] hover:text-[#0ab80a]">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
@@ -67,7 +69,7 @@ export default function LoginForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl text-base"
+          className="w-full h-12 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl text-base"
         >
           {loading ? "Ingresando..." : "Ingresar"}
         </Button>
@@ -75,7 +77,7 @@ export default function LoginForm() {
 
       <p className="text-center text-sm text-zinc-500">
         ¿No tenés cuenta?{" "}
-        <Link href="/register" className="text-green-400 hover:text-green-300 font-medium">
+        <Link href="/register" className="text-[#0dcf0d] hover:text-[#0ab80a] font-medium">
           Registrate gratis
         </Link>
       </p>

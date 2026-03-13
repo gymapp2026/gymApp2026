@@ -86,7 +86,7 @@ export default function ExerciseManager() {
 
   return (
     <div className="space-y-4">
-      <Button onClick={openCreate} size="sm" className="bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl">
+      <Button onClick={openCreate} size="sm" className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-semibold rounded-xl">
         <Plus size={14} className="mr-1" /> Nuevo ejercicio
       </Button>
 
@@ -173,7 +173,7 @@ export default function ExerciseManager() {
               <Input value={form.gifUrl} onChange={(e) => setForm({ ...form, gifUrl: e.target.value })}
                 placeholder="https://..." className="mt-1 bg-zinc-800 border-zinc-700 text-zinc-50 h-10 placeholder:text-zinc-600" />
             </div>
-            <Button type="submit" disabled={saving} className="w-full bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl">
+            <Button type="submit" disabled={saving} className="w-full bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl">
               {saving ? "Guardando..." : (editing ? "Actualizar" : "Crear ejercicio")}
             </Button>
           </form>

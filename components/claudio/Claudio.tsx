@@ -32,10 +32,10 @@ export default function Claudio() {
       <motion.div
         animate={{ rotate: [0, -10, 10, -10, 0] }}
         transition={{ repeat: Infinity, repeatDelay: 3, duration: 0.5 }}
-        className="text-5xl select-none"
+        className="flex-shrink-0"
         aria-label="Claudio el asistente"
       >
-        🏋️
+        <img src="/logo.jpg" alt="Logo" className="w-14 h-14 rounded-full object-cover border-2 border-[#0dcf0d]/40" />
       </motion.div>
       <div>
         <p className="text-lg font-bold text-zinc-50">Hola, {name}!</p>

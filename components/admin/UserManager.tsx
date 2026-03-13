@@ -75,7 +75,7 @@ export default function UserManager() {
 
   return (
     <div className="space-y-4">
-      <Button onClick={() => setShowCreate(true)} size="sm" className="bg-green-500 hover:bg-green-600 text-zinc-950 font-semibold rounded-xl">
+      <Button onClick={() => setShowCreate(true)} size="sm" className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-semibold rounded-xl">
         <Plus size={14} className="mr-1" /> Nuevo usuario
       </Button>
 
@@ -151,7 +151,7 @@ export default function UserManager() {
                 </Select>
               </div>
             </div>
-            <Button type="submit" disabled={saving} className="w-full bg-green-500 hover:bg-green-600 text-zinc-950 font-bold rounded-xl">
+            <Button type="submit" disabled={saving} className="w-full bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl">
               {saving ? "Creando..." : "Crear usuario"}
             </Button>
           </form>

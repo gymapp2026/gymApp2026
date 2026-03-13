@@ -9,7 +9,7 @@ export interface GymSettingsDocument extends Document {
 
 const GymSettingsSchema = new Schema<GymSettingsDocument>({
   slug: { type: String, required: true, unique: true, default: "default" },
-  name: { type: String, required: true, default: "GymApp" },
+  name: { type: String, required: true, default: "FullFutbol" },
   emoji: { type: String, required: true, default: "🏋️" },
 });
 

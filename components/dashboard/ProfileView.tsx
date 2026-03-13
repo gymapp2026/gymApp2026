@@ -15,7 +15,7 @@ const PLAN_INFO = {
 const ROLE_LABELS = {
   user: "Usuario",
   admin: "Administrador",
-  superadmin: "Super Admin",
+  superadmin: "German",
 };
 
 export default function ProfileView() {
@@ -32,7 +32,7 @@ export default function ProfileView() {
       <Card className="bg-zinc-900 border-zinc-800">
         <CardContent className="p-5 flex items-center gap-4">
           <Avatar className="w-16 h-16">
-            <AvatarFallback className="bg-green-500/20 text-green-400 text-xl font-bold">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-[#0dcf0d]/20 text-[#0dcf0d] text-xl font-bold">{initials}</AvatarFallback>
           </Avatar>
           <div>
             <p className="text-lg font-bold text-zinc-50">{user.name}</p>

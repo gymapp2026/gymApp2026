@@ -12,13 +12,13 @@ const users: any[] = [];
 const exercises: any[] = [];
 const routines: any[] = [];
 const gymSessions: any[] = [];
-const gymSettingsStore: any[] = [{ _id: "default", slug: "default", name: "GymApp", emoji: "🏋️" }];
+const gymSettingsStore: any[] = [{ _id: "default", slug: "default", name: "FullFutbol", emoji: "🏋️" }];
 
 // ─── SEED SUPERADMIN ──────────────────────────────────────────────
 const SUPERADMIN_HASH = bcrypt.hashSync("superadmin123", 10);
 users.push({
   _id: newId(),
-  name: "Super Admin",
+  name: "German",
   email: "superadmin@gymapp.com",
   password: SUPERADMIN_HASH,
   role: "superadmin",

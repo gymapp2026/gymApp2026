@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/fiona/.claude/plugins/**)",
+      "Read(//c/Users/fiona/.claude/**)",
+      "Bash(find /c/Users/fiona/OneDrive/Escritorio/gym/types -type f -name *.ts)",
+      "Bash(npm run:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\fiona\\OneDrive\\Escritorio\\gym\\.claude\\skills"
+    ]
+  }
+}

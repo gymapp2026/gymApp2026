@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 function toYouTubeEmbed(url: string): string {
   const short = url.match(/youtu\.be\/([^?&]+)/);
@@ -30,7 +30,7 @@ const DIFFICULTY_COLORS = {
 const DIFFICULTY_LABELS = { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzado" };
 
 export default function ExerciseList() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const isAdmin = (session?.user as any)?.role === "admin" || (session?.user as any)?.role === "superadmin";
   const [exercises, setExercises] = useState<IExercise[]>([]);
   const [filtered, setFiltered] = useState<IExercise[]>([]);
@@ -39,7 +39,8 @@ export default function ExerciseList() {
   const [selected, setSelected] = useState<IExercise | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchExercises = useCallback(() => {
+    setLoading(true);
     fetch("/api/exercises")
       .then((r) => r.json())
       .then((data) => {
@@ -49,6 +50,16 @@ export default function ExerciseList() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (status === "authenticated") fetchExercises();
+  }, [status, fetchExercises]);
+
+  useEffect(() => {
+    const onFocus = () => { if (status === "authenticated") fetchExercises(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [status, fetchExercises]);
 
   useEffect(() => {
     let result = exercises;

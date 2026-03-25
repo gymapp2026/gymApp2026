@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ function toYouTubeEmbed(url: string): string {
 }
 
 export default function RoutineList() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const role = (session?.user as any)?.role;
   const isAdmin = role === "admin" || role === "superadmin";
   const [routines, setRoutines] = useState<IRoutine[]>([]);
@@ -37,14 +37,25 @@ export default function RoutineList() {
   const [savingVideo, setSavingVideo] = useState(false);
   const [editingVideo, setEditingVideo] = useState(false);
 
-  const fetchRoutines = () => {
+  const fetchRoutines = useCallback(() => {
+    setLoading(true);
     fetch("/api/routines")
       .then((r) => r.json())
       .then((data) => { setRoutines(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { fetchRoutines(); }, []);
+  // Esperar sesión autenticada antes de fetchear
+  useEffect(() => {
+    if (status === "authenticated") fetchRoutines();
+  }, [status, fetchRoutines]);
+
+  // Re-fetchear al volver al foco (ej: volver desde crear rutina)
+  useEffect(() => {
+    const onFocus = () => { if (status === "authenticated") fetchRoutines(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [status, fetchRoutines]);
 
   const deleteRoutine = async (id: string) => {
     if (!confirm("¿Eliminar esta rutina?")) return;

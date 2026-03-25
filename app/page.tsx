@@ -51,7 +51,6 @@ export default function LandingPage() {
         <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
           <Image src="/logo.jpg" alt="Logo" width={64} height={64} className="rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
           <div>
-            <p className="text-xs text-zinc-500 uppercase tracking-wider">Claudio dice</p>
             <p className="font-bold text-zinc-50">Hola, campeón!</p>
             <p className="text-sm text-zinc-400">Dale, hoy toca entrenar 💪</p>
           </div>

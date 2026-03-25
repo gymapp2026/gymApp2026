@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function LoginForm() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="text-center">
         <div className="flex justify-center mb-3">
-          <img src="/logo.jpg" alt="Logo" className="w-20 h-20 rounded-full object-cover border-2 border-[#0dcf0d]/40" />
+          <Image src="/logo.jpg" alt="Logo" width={80} height={80} className="rounded-full object-cover border-2 border-[#0dcf0d]/40" />
         </div>
         <h1 className="text-2xl font-bold text-zinc-50">Bienvenido de vuelta</h1>
         <p className="text-zinc-500 text-sm mt-1">Ingresá a tu cuenta</p>

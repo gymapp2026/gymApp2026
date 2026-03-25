@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dumbbell, ClipboardList, Play, Shield, Zap, Crown } from "lucide-react";
@@ -10,7 +11,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
+            <Image src="/logo.jpg" alt="Logo" width={32} height={32} className="rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm" className="text-zinc-400 hover:text-zinc-50">
@@ -48,7 +49,7 @@ export default function LandingPage() {
       {/* Claudio preview */}
       <section className="px-4 pb-12 max-w-sm mx-auto">
         <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-          <img src="/logo.jpg" alt="Logo" className="w-16 h-16 rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
+          <Image src="/logo.jpg" alt="Logo" width={64} height={64} className="rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
           <div>
             <p className="text-xs text-zinc-500 uppercase tracking-wider">Claudio dice</p>
             <p className="font-bold text-zinc-50">Hola, campeón!</p>

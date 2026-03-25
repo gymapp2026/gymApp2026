@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 const greetings = [
   "Dale, hoy toca entrenar 💪",
@@ -35,7 +36,7 @@ export default function Claudio() {
         className="flex-shrink-0"
         aria-label="Claudio el asistente"
       >
-        <img src="/logo.jpg" alt="Logo" className="w-14 h-14 rounded-full object-cover border-2 border-[#0dcf0d]/40" />
+        <Image src="/logo.jpg" alt="Logo" width={56} height={56} className="rounded-full object-cover border-2 border-[#0dcf0d]/40" />
       </motion.div>
       <div>
         <p className="text-lg font-bold text-zinc-50">Hola, {name}!</p>

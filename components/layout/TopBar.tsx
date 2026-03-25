@@ -7,6 +7,7 @@ import { LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useGymSettings } from "@/hooks/useGymSettings";
+import Image from "next/image";
 
 export default function TopBar() {
   const { data: session } = useSession();
@@ -18,7 +19,7 @@ export default function TopBar() {
     <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800 h-14 flex items-center px-4 md:pl-64">
       <div className="flex items-center justify-between w-full max-w-2xl mx-auto md:max-w-full">
         <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
-          <img src="/logo.jpg" alt={name} className="w-7 h-7 rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
+          <Image src="/logo.jpg" alt={name} width={28} height={28} className="rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
           <span className="font-bold text-sm text-zinc-50">{name}</span>
         </Link>
         <div className="hidden md:block" />

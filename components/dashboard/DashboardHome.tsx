@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Dumbbell, Plus, ChevronRight, CalendarCheck, Flame } from "lucide-react";
@@ -7,14 +8,26 @@ import Link from "next/link";
 import { IRoutine } from "@/types";
 import { toast } from "sonner";
 
+function StatSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {[1, 2].map((i) => (
+        <div key={i} className="h-20 rounded-xl bg-zinc-900 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
 export default function DashboardHome() {
+  const { status } = useSession();
   const [routines, setRoutines] = useState<IRoutine[]>([]);
   const [loading, setLoading] = useState(true);
   const [gymCount, setGymCount] = useState(0);
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
+    setLoading(true);
     fetch("/api/routines")
       .then((r) => r.json())
       .then((data) => {
@@ -31,6 +44,16 @@ export default function DashboardHome() {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (status === "authenticated") fetchData();
+  }, [status, fetchData]);
+
+  useEffect(() => {
+    const onFocus = () => { if (status === "authenticated") fetchData(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [status, fetchData]);
 
   const markGymDay = async () => {
     if (doneToday || marking) return;
@@ -56,32 +79,34 @@ export default function DashboardHome() {
   return (
     <div className="space-y-5">
       {/* Stats rápidas */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0dcf0d]/10 flex items-center justify-center">
-              <ClipboardList size={20} className="text-[#0dcf0d]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-zinc-50">{routines.length}</p>
-              <p className="text-xs text-zinc-500">Rutinas</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-              <Dumbbell size={20} className="text-blue-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-zinc-50">
-                {routines.reduce((acc, r) => acc + r.days.length, 0)}
-              </p>
-              <p className="text-xs text-zinc-500">Días de entreno</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {loading ? <StatSkeleton /> : (
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#0dcf0d]/10 flex items-center justify-center">
+                <ClipboardList size={20} className="text-[#0dcf0d]" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-zinc-50">{routines.length}</p>
+                <p className="text-xs text-zinc-500">Rutinas</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <Dumbbell size={20} className="text-blue-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-zinc-50">
+                  {routines.reduce((acc, r) => acc + r.days.length, 0)}
+                </p>
+                <p className="text-xs text-zinc-500">Días de entreno</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Tracking días de gym */}
       <Card className="bg-zinc-900 border-zinc-800">
@@ -94,7 +119,7 @@ export default function DashboardHome() {
               <p className="text-sm font-semibold text-zinc-50">
                 Días de gym{" "}
                 <span className="text-yellow-400">
-                  {gymCount}/{plannedDays || "—"}
+                  {loading ? "..." : `${gymCount}/${plannedDays || "—"}`}
                 </span>{" "}
                 <span className="text-zinc-500 font-normal">esta semana</span>
               </p>
@@ -106,7 +131,7 @@ export default function DashboardHome() {
           <Button
             size="sm"
             onClick={markGymDay}
-            disabled={doneToday || marking}
+            disabled={doneToday || marking || loading}
             className={`rounded-xl font-semibold flex-shrink-0 ${
               doneToday
                 ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
@@ -160,7 +185,7 @@ export default function DashboardHome() {
         ) : (
           <div className="space-y-3">
             {routines.map((routine) => (
-              <Link key={routine._id} href={`/dashboard/routines`}>
+              <Link key={routine._id} href="/dashboard/routines">
                 <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div>

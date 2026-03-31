@@ -36,7 +36,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-60 min-h-screen bg-zinc-900 border-r border-zinc-800 p-4 gap-1 fixed left-0 top-0">
+    <aside className="hidden md:flex flex-col w-64 min-h-screen bg-zinc-900 border-r border-zinc-800 p-4 gap-1 fixed left-0 top-0">
       <div className="flex items-center gap-3 px-2 py-4 mb-4">
         <Image src="/logo.jpg" alt={name} width={36} height={36} className="rounded-full object-cover border-2 border-[#0dcf0d]/40 flex-shrink-0" />
         <span className="font-bold text-lg text-zinc-50">{name}</span>

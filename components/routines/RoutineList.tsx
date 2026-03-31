@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Trash2, ChevronDown, ChevronUp, Plus, Dumbbell, Play, Check, LinkIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, Plus, Dumbbell, Play, Check, LinkIcon, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { IRoutine } from "@/types";
@@ -137,6 +137,14 @@ export default function RoutineList() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="w-8 h-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg"
+                    onClick={(e) => { e.stopPropagation(); window.location.href = `/dashboard/routines/${routine._id}/edit`; }}
+                  >
+                    <Pencil size={14} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="w-8 h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg"
                     onClick={(e) => { e.stopPropagation(); deleteRoutine(routine._id); }}
                   >
@@ -240,7 +248,7 @@ export default function RoutineList() {
                       allowFullScreen
                     />
                   </div>
-                  {role === "superadmin" && !editingVideo && (
+                  {!editingVideo && (
                     <button
                       onClick={() => { setNewVideoUrl(videoEx.videoUrl || ""); setEditingVideo(true); }}
                       className="text-xs text-zinc-500 hover:text-[#0dcf0d] flex items-center gap-1 transition-colors"
@@ -248,7 +256,7 @@ export default function RoutineList() {
                       <LinkIcon size={11} /> Editar video
                     </button>
                   )}
-                  {role === "superadmin" && editingVideo && (
+                  {editingVideo && (
                     <div className="flex gap-2">
                       <Input
                         placeholder="Nuevo link de YouTube..."
@@ -280,28 +288,26 @@ export default function RoutineList() {
                 <div className="flex flex-col items-center justify-center py-6 rounded-xl bg-zinc-800/50 gap-4">
                   <Play size={32} className="text-zinc-600" />
                   <p className="text-sm text-zinc-500 text-center">Video no disponible aún.</p>
-                  {isAdmin && (
-                    <div className="w-full space-y-2">
-                      <p className="text-xs text-zinc-400 text-center">Pegá el link de YouTube para agregar el video</p>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="https://youtube.com/watch?v=..."
-                          value={newVideoUrl}
-                          onChange={(e) => setNewVideoUrl(e.target.value)}
-                          className="bg-zinc-700 border-zinc-600 text-zinc-100 text-sm h-9"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={saveVideoUrl}
-                          disabled={savingVideo || !newVideoUrl.trim()}
-                          className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 h-9 px-3 flex-shrink-0"
-                        >
-                          <LinkIcon size={13} className="mr-1" />
-                          {savingVideo ? "..." : "Agregar"}
-                        </Button>
-                      </div>
+                  <div className="w-full space-y-2">
+                    <p className="text-xs text-zinc-400 text-center">Pegá el link de YouTube para agregar el video</p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://youtube.com/watch?v=..."
+                        value={newVideoUrl}
+                        onChange={(e) => setNewVideoUrl(e.target.value)}
+                        className="bg-zinc-700 border-zinc-600 text-zinc-100 text-sm h-9"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={saveVideoUrl}
+                        disabled={savingVideo || !newVideoUrl.trim()}
+                        className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 h-9 px-3 flex-shrink-0"
+                      >
+                        <LinkIcon size={13} className="mr-1" />
+                        {savingVideo ? "..." : "Agregar"}
+                      </Button>
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
               {videoEx.description && (

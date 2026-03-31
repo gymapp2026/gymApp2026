@@ -26,13 +26,21 @@ interface RoutineDay {
   exercises: RoutineExercise[];
 }
 
-export default function RoutineBuilder() {
+interface Props {
+  routineId?: string;
+  initialName?: string;
+  initialDescription?: string;
+  initialDays?: RoutineDay[];
+}
+
+export default function RoutineBuilder({ routineId, initialName = "", initialDescription = "", initialDays }: Props) {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [days, setDays] = useState<RoutineDay[]>([{ day: "Lunes", exercises: [] }]);
+  const [name, setName] = useState(initialName);
+  const [description, setDescription] = useState(initialDescription);
+  const [days, setDays] = useState<RoutineDay[]>(initialDays ?? [{ day: "Lunes", exercises: [] }]);
   const [exercises, setExercises] = useState<IExercise[]>([]);
   const [saving, setSaving] = useState(false);
+  const isEditing = !!routineId;
 
   useEffect(() => {
     fetch("/api/exercises").then((r) => r.json()).then((data) => setExercises(Array.isArray(data) ? data : []));
@@ -62,13 +70,15 @@ export default function RoutineBuilder() {
     if (!name.trim()) return toast.error("Poné un nombre a la rutina");
     setSaving(true);
     try {
-      const res = await fetch("/api/routines", {
-        method: "POST",
+      const url = isEditing ? `/api/routines/${routineId}` : "/api/routines";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description, days }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Rutina creada!");
+      toast.success(isEditing ? "Rutina actualizada!" : "Rutina creada!");
       router.push("/dashboard/routines");
     } catch {
       toast.error("Error al guardar la rutina");
@@ -192,7 +202,7 @@ export default function RoutineBuilder() {
         disabled={saving}
         className="w-full h-12 bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 font-bold rounded-xl text-base"
       >
-        {saving ? "Guardando..." : "Guardar rutina"}
+        {saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Guardar rutina"}
       </Button>
     </div>
   );

@@ -20,7 +20,7 @@ export default function RegisterForm() {
     if (form.password !== form.confirm) return toast.error("Las contraseñas no coinciden");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),

@@ -9,7 +9,12 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const session = req.auth;
 
-  const isPublic = publicRoutes.some((r) => pathname === r || pathname.startsWith("/api/auth"));
+  const isPublic =
+    publicRoutes.some((r) => pathname === r) ||
+    pathname.startsWith("/api/auth") ||
+    pathname === "/api/register" ||
+    pathname === "/api/forgot-password" ||
+    pathname === "/api/reset-password";
   if (isPublic) return NextResponse.next();
 
   if (!session) {

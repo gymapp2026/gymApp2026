@@ -79,6 +79,7 @@ export default function RoutineBuilder({ routineId, initialName = "", initialDes
       });
       if (!res.ok) throw new Error();
       toast.success(isEditing ? "Rutina actualizada!" : "Rutina creada!");
+      router.refresh();
       router.push("/dashboard/routines");
     } catch {
       toast.error("Error al guardar la rutina");

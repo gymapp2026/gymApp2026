@@ -23,7 +23,7 @@ export default function LoginForm() {
     if (res?.error) {
       toast.error("Email o contraseña incorrectos");
     } else {
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     }
     setLoading(false);
   };

@@ -25,7 +25,7 @@ function toYouTubeEmbed(url: string): string {
 }
 
 export default function RoutineList() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const role = (session?.user as any)?.role;
   const isAdmin = role === "admin" || role === "superadmin";
   const [routines, setRoutines] = useState<IRoutine[]>([]);
@@ -47,17 +47,15 @@ export default function RoutineList() {
       .catch(() => setLoading(false));
   }, []);
 
-  // Esperar sesión autenticada antes de fetchear
   useEffect(() => {
-    if (status === "authenticated") fetchRoutines();
-  }, [status, fetchRoutines]);
+    fetchRoutines();
+  }, [fetchRoutines]);
 
-  // Re-fetchear al volver al foco (ej: volver desde crear rutina)
   useEffect(() => {
-    const onFocus = () => { if (status === "authenticated") fetchRoutines(); };
+    const onFocus = () => fetchRoutines();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [status, fetchRoutines]);
+  }, [fetchRoutines]);
 
   const deleteRoutine = async (id: string) => {
     if (!confirm("¿Eliminar esta rutina?")) return;

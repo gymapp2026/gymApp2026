@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Dumbbell, Plus, ChevronRight, CalendarCheck, Flame } from "lucide-react";
@@ -19,7 +18,6 @@ function StatSkeleton() {
 }
 
 export default function DashboardHome() {
-  const { status } = useSession();
   const [routines, setRoutines] = useState<IRoutine[]>([]);
   const [loading, setLoading] = useState(true);
   const [gymCount, setGymCount] = useState(0);
@@ -46,14 +44,14 @@ export default function DashboardHome() {
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") fetchData();
-  }, [status, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
-    const onFocus = () => { if (status === "authenticated") fetchData(); };
+    const onFocus = () => fetchData();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [status, fetchData]);
+  }, [fetchData]);
 
   const markGymDay = async () => {
     if (doneToday || marking) return;

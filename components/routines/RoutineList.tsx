@@ -39,12 +39,28 @@ export default function RoutineList() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
 
-  const fetchRoutines = useCallback(() => {
+  const fetchRoutines = useCallback(async (attempt = 0) => {
     setLoading(true);
-    fetch("/api/routines")
-      .then((r) => r.json())
-      .then((data) => { setRoutines(Array.isArray(data) ? data : []); setLoading(false); })
-      .catch(() => setLoading(false));
+    try {
+      const r = await fetch("/api/routines");
+      const data = await r.json();
+      if (!r.ok || !Array.isArray(data)) {
+        if (attempt < 3) {
+          setTimeout(() => fetchRoutines(attempt + 1), 1000);
+        } else {
+          setLoading(false);
+        }
+        return;
+      }
+      setRoutines(data);
+      setLoading(false);
+    } catch {
+      if (attempt < 3) {
+        setTimeout(() => fetchRoutines(attempt + 1), 1000);
+      } else {
+        setLoading(false);
+      }
+    }
   }, []);
 
   useEffect(() => {

@@ -24,15 +24,29 @@ export default function DashboardHome() {
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
 
-  const fetchData = useCallback(() => {
+  const fetchData = useCallback(async (attempt = 0) => {
     setLoading(true);
-    fetch("/api/routines")
-      .then((r) => r.json())
-      .then((data) => {
-        setRoutines(Array.isArray(data) ? data.slice(0, 3) : []);
+    try {
+      const r = await fetch("/api/routines");
+      const data = await r.json();
+      if (!r.ok || !Array.isArray(data)) {
+        // DB aún conectando o sesión no lista: reintentar hasta 3 veces
+        if (attempt < 3) {
+          setTimeout(() => fetchData(attempt + 1), 1000);
+        } else {
+          setLoading(false);
+        }
+        return;
+      }
+      setRoutines(data.slice(0, 3));
+      setLoading(false);
+    } catch {
+      if (attempt < 3) {
+        setTimeout(() => fetchData(attempt + 1), 1000);
+      } else {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    }
 
     fetch("/api/gym-sessions")
       .then((r) => r.json())

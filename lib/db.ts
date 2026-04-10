@@ -28,6 +28,7 @@ export async function connectDB() {
   cache.promise = null;
 
   cache.promise = mongoose.connect(MONGODB_URI, {
+    dbName: "gymapp",
     serverSelectionTimeoutMS: 10000,
     socketTimeoutMS: 45000,
   }).then((m) => m);

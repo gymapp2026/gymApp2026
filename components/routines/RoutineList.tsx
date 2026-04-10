@@ -24,12 +24,12 @@ function toYouTubeEmbed(url: string): string {
   return url;
 }
 
-export default function RoutineList() {
+export default function RoutineList({ initialRoutines = [] }: { initialRoutines?: IRoutine[] }) {
   const { data: session, status } = useSession();
   const role = (session?.user as any)?.role;
   const isAdmin = role === "admin" || role === "superadmin";
-  const [routines, setRoutines] = useState<IRoutine[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [routines, setRoutines] = useState<IRoutine[]>(initialRoutines);
+  const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [completedExs, setCompletedExs] = useState<Set<string>>(new Set());
   const [videoEx, setVideoEx] = useState<{ name: string; exId?: string; videoUrl?: string; gifUrl?: string; description?: string } | null>(null);
@@ -39,29 +39,15 @@ export default function RoutineList() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
 
-  const fetchRoutines = useCallback(async () => {
+  const fetchRoutines = useCallback(() => {
     setLoading(true);
-    let retries = 0;
-    while (retries <= 5) {
-      try {
-        const r = await fetch("/api/routines");
-        const data = await r.json();
-        if (r.ok && Array.isArray(data)) {
-          setRoutines(data);
-          setLoading(false);
-          return;
-        }
-      } catch {}
-      retries++;
-      if (retries <= 5) await new Promise((res) => setTimeout(res, 1500));
-    }
-    setLoading(false);
+    fetch("/api/routines")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setRoutines(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (status === "authenticated") fetchRoutines();
-  }, [status, fetchRoutines]);
-
+  // Refresca al volver al foco (ej: después de crear/editar rutina)
   useEffect(() => {
     const onFocus = () => { if (status === "authenticated") fetchRoutines(); };
     window.addEventListener("focus", onFocus);

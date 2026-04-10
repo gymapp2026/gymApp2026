@@ -18,44 +18,47 @@ function StatSkeleton() {
   );
 }
 
-export default function DashboardHome() {
+export default function DashboardHome({ initialRoutines = [] }: { initialRoutines?: IRoutine[] }) {
   const { status } = useSession();
-  const [routines, setRoutines] = useState<IRoutine[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [routines, setRoutines] = useState<IRoutine[]>(initialRoutines);
+  const [loading, setLoading] = useState(false);
   const [gymCount, setGymCount] = useState(0);
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(() => {
     setLoading(true);
-    let retries = 0;
-    while (retries <= 5) {
-      try {
-        const r = await fetch("/api/routines");
-        const data = await r.json();
-        if (r.ok && Array.isArray(data)) {
-          setRoutines(data.slice(0, 3));
-          setLoading(false);
-          fetch("/api/gym-sessions")
-            .then((r) => r.json())
-            .then((data) => {
-              setGymCount(data.count ?? 0);
-              setDoneToday(data.doneToday ?? false);
-            })
-            .catch(() => {});
-          return;
-        }
-      } catch {}
-      retries++;
-      if (retries <= 5) await new Promise((res) => setTimeout(res, 1500));
-    }
-    setLoading(false);
+    fetch("/api/routines")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setRoutines(data.slice(0, 3));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+    fetch("/api/gym-sessions")
+      .then((r) => r.json())
+      .then((data) => {
+        setGymCount(data.count ?? 0);
+        setDoneToday(data.doneToday ?? false);
+      })
+      .catch(() => {});
   }, []);
 
+  // Solo fetchea gym-sessions al montar (no necesita retry, datos secundarios)
   useEffect(() => {
-    if (status === "authenticated") fetchData();
-  }, [status, fetchData]);
+    if (status === "authenticated") {
+      fetch("/api/gym-sessions")
+        .then((r) => r.json())
+        .then((data) => {
+          setGymCount(data.count ?? 0);
+          setDoneToday(data.doneToday ?? false);
+        })
+        .catch(() => {});
+    }
+  }, [status]);
 
+  // Refresca rutinas al volver al foco
   useEffect(() => {
     const onFocus = () => { if (status === "authenticated") fetchData(); };
     window.addEventListener("focus", onFocus);
@@ -126,7 +129,7 @@ export default function DashboardHome() {
               <p className="text-sm font-semibold text-zinc-50">
                 Días de gym{" "}
                 <span className="text-yellow-400">
-                  {loading ? "..." : `${gymCount}/${plannedDays || "—"}`}
+                  {`${gymCount}/${plannedDays || "—"}`}
                 </span>{" "}
                 <span className="text-zinc-500 font-normal">esta semana</span>
               </p>
@@ -138,7 +141,7 @@ export default function DashboardHome() {
           <Button
             size="sm"
             onClick={markGymDay}
-            disabled={doneToday || marking || loading}
+            disabled={doneToday || marking}
             className={`rounded-xl font-semibold flex-shrink-0 ${
               doneToday
                 ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
@@ -174,13 +177,7 @@ export default function DashboardHome() {
           </Link>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col gap-3">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-16 rounded-2xl bg-zinc-900 animate-pulse" />
-            ))}
-          </div>
-        ) : routines.length === 0 ? (
+        {routines.length === 0 ? (
           <Card className="bg-zinc-900 border-zinc-800 border-dashed">
             <CardContent className="p-6 text-center">
               <p className="text-zinc-500 text-sm">Todavía no tenés rutinas creadas.</p>

@@ -18,11 +18,19 @@ global.mongooseCache = cache;
 export async function connectDB() {
   if (USE_MEMORY_DB) return; // modo memoria, sin conexión real
 
-  if (cache.conn) return cache.conn;
-
-  if (!cache.promise) {
-    cache.promise = mongoose.connect(MONGODB_URI).then((m) => m);
+  // readyState 1 = connected. Si no está conectado, resetear caché y reconectar.
+  if (cache.conn && mongoose.connection.readyState === 1) {
+    return cache.conn;
   }
+
+  // Conexión caída o inexistente — limpiar caché y reconectar
+  cache.conn = null;
+  cache.promise = null;
+
+  cache.promise = mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+  }).then((m) => m);
 
   cache.conn = await cache.promise;
   return cache.conn;

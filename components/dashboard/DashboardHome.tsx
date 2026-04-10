@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Dumbbell, Plus, ChevronRight, CalendarCheck, Flame } from "lucide-react";
@@ -18,54 +19,48 @@ function StatSkeleton() {
 }
 
 export default function DashboardHome() {
+  const { status } = useSession();
   const [routines, setRoutines] = useState<IRoutine[]>([]);
   const [loading, setLoading] = useState(true);
   const [gymCount, setGymCount] = useState(0);
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
 
-  const fetchData = useCallback(async (attempt = 0) => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
-      const r = await fetch("/api/routines");
-      const data = await r.json();
-      if (!r.ok || !Array.isArray(data)) {
-        // DB aún conectando o sesión no lista: reintentar hasta 3 veces
-        if (attempt < 3) {
-          setTimeout(() => fetchData(attempt + 1), 1000);
-        } else {
+    let retries = 0;
+    while (retries <= 5) {
+      try {
+        const r = await fetch("/api/routines");
+        const data = await r.json();
+        if (r.ok && Array.isArray(data)) {
+          setRoutines(data.slice(0, 3));
           setLoading(false);
+          fetch("/api/gym-sessions")
+            .then((r) => r.json())
+            .then((data) => {
+              setGymCount(data.count ?? 0);
+              setDoneToday(data.doneToday ?? false);
+            })
+            .catch(() => {});
+          return;
         }
-        return;
-      }
-      setRoutines(data.slice(0, 3));
-      setLoading(false);
-    } catch {
-      if (attempt < 3) {
-        setTimeout(() => fetchData(attempt + 1), 1000);
-      } else {
-        setLoading(false);
-      }
+      } catch {}
+      retries++;
+      if (retries <= 5) await new Promise((res) => setTimeout(res, 1500));
     }
-
-    fetch("/api/gym-sessions")
-      .then((r) => r.json())
-      .then((data) => {
-        setGymCount(data.count ?? 0);
-        setDoneToday(data.doneToday ?? false);
-      })
-      .catch(() => {});
+    setLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (status === "authenticated") fetchData();
+  }, [status, fetchData]);
 
   useEffect(() => {
-    const onFocus = () => fetchData();
+    const onFocus = () => { if (status === "authenticated") fetchData(); };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [fetchData]);
+  }, [status, fetchData]);
 
   const markGymDay = async () => {
     if (doneToday || marking) return;

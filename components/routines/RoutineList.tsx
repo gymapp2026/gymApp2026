@@ -25,7 +25,7 @@ function toYouTubeEmbed(url: string): string {
 }
 
 export default function RoutineList() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const role = (session?.user as any)?.role;
   const isAdmin = role === "admin" || role === "superadmin";
   const [routines, setRoutines] = useState<IRoutine[]>([]);
@@ -39,39 +39,34 @@ export default function RoutineList() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
 
-  const fetchRoutines = useCallback(async (attempt = 0) => {
+  const fetchRoutines = useCallback(async () => {
     setLoading(true);
-    try {
-      const r = await fetch("/api/routines");
-      const data = await r.json();
-      if (!r.ok || !Array.isArray(data)) {
-        if (attempt < 3) {
-          setTimeout(() => fetchRoutines(attempt + 1), 1000);
-        } else {
+    let retries = 0;
+    while (retries <= 5) {
+      try {
+        const r = await fetch("/api/routines");
+        const data = await r.json();
+        if (r.ok && Array.isArray(data)) {
+          setRoutines(data);
           setLoading(false);
+          return;
         }
-        return;
-      }
-      setRoutines(data);
-      setLoading(false);
-    } catch {
-      if (attempt < 3) {
-        setTimeout(() => fetchRoutines(attempt + 1), 1000);
-      } else {
-        setLoading(false);
-      }
+      } catch {}
+      retries++;
+      if (retries <= 5) await new Promise((res) => setTimeout(res, 1500));
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchRoutines();
-  }, [fetchRoutines]);
+    if (status === "authenticated") fetchRoutines();
+  }, [status, fetchRoutines]);
 
   useEffect(() => {
-    const onFocus = () => fetchRoutines();
+    const onFocus = () => { if (status === "authenticated") fetchRoutines(); };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [fetchRoutines]);
+  }, [status, fetchRoutines]);
 
   const deleteRoutine = async (id: string) => {
     if (!confirm("¿Eliminar esta rutina?")) return;

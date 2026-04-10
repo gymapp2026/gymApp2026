@@ -14,7 +14,8 @@ export async function GET() {
       .sort({ createdAt: -1 });
 
     return NextResponse.json(routines);
-  } catch {
+  } catch (err) {
+    console.error("[/api/routines GET]", err);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }

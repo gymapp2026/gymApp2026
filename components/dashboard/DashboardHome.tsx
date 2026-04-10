@@ -20,8 +20,9 @@ function StatSkeleton() {
 
 export default function DashboardHome({ initialRoutines = [] }: { initialRoutines?: IRoutine[] }) {
   const { status } = useSession();
+  // Si SSR trajo datos, arrancar con ellos y sin loading. Si no, arrancar en loading.
   const [routines, setRoutines] = useState<IRoutine[]>(initialRoutines);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(initialRoutines.length === 0);
   const [gymCount, setGymCount] = useState(0);
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
@@ -45,20 +46,11 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
       .catch(() => {});
   }, []);
 
-  // Solo fetchea gym-sessions al montar (no necesita retry, datos secundarios)
+  // Siempre fetchea cuando la sesión esté lista (igual que exercises)
   useEffect(() => {
-    if (status === "authenticated") {
-      fetch("/api/gym-sessions")
-        .then((r) => r.json())
-        .then((data) => {
-          setGymCount(data.count ?? 0);
-          setDoneToday(data.doneToday ?? false);
-        })
-        .catch(() => {});
-    }
-  }, [status]);
+    if (status === "authenticated") fetchData();
+  }, [status, fetchData]);
 
-  // Refresca rutinas al volver al foco
   useEffect(() => {
     const onFocus = () => { if (status === "authenticated") fetchData(); };
     window.addEventListener("focus", onFocus);
@@ -129,7 +121,7 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
               <p className="text-sm font-semibold text-zinc-50">
                 Días de gym{" "}
                 <span className="text-yellow-400">
-                  {`${gymCount}/${plannedDays || "—"}`}
+                  {loading ? "..." : `${gymCount}/${plannedDays || "—"}`}
                 </span>{" "}
                 <span className="text-zinc-500 font-normal">esta semana</span>
               </p>
@@ -177,7 +169,13 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
           </Link>
         </div>
 
-        {routines.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-16 rounded-2xl bg-zinc-900 animate-pulse" />
+            ))}
+          </div>
+        ) : routines.length === 0 ? (
           <Card className="bg-zinc-900 border-zinc-800 border-dashed">
             <CardContent className="p-6 text-center">
               <p className="text-zinc-500 text-sm">Todavía no tenés rutinas creadas.</p>

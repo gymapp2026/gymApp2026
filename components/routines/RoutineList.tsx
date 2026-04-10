@@ -29,7 +29,8 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
   const role = (session?.user as any)?.role;
   const isAdmin = role === "admin" || role === "superadmin";
   const [routines, setRoutines] = useState<IRoutine[]>(initialRoutines);
-  const [loading, setLoading] = useState(false);
+  // Si SSR trajo datos, no mostrar loading. Si no, esperar el fetch cliente.
+  const [loading, setLoading] = useState(initialRoutines.length === 0);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [completedExs, setCompletedExs] = useState<Set<string>>(new Set());
   const [videoEx, setVideoEx] = useState<{ name: string; exId?: string; videoUrl?: string; gifUrl?: string; description?: string } | null>(null);
@@ -47,7 +48,11 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
       .catch(() => setLoading(false));
   }, []);
 
-  // Refresca al volver al foco (ej: después de crear/editar rutina)
+  // Siempre fetchea al autenticarse (igual que exercises — es el fallback si SSR falla)
+  useEffect(() => {
+    if (status === "authenticated") fetchRoutines();
+  }, [status, fetchRoutines]);
+
   useEffect(() => {
     const onFocus = () => { if (status === "authenticated") fetchRoutines(); };
     window.addEventListener("focus", onFocus);

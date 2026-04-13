@@ -1,6 +1,5 @@
 "use client";
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { useSession } from "next-auth/react";
 import { IRoutine } from "@/types";
 
 interface RoutinesContextValue {
@@ -16,34 +15,38 @@ const RoutinesContext = createContext<RoutinesContextValue>({
 });
 
 export function RoutinesProvider({ children }: { children: ReactNode }) {
-  const { status } = useSession();
   const [routines, setRoutines] = useState<IRoutine[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    // Reintenta hasta 8 veces con 1.5s entre intentos (cubre cold start de MongoDB y Vercel)
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 10; i++) {
       try {
         const r = await fetch("/api/routines");
+        if (r.status === 401) {
+          // Sesión todavía no lista en el servidor, esperar y reintentar
+          await new Promise((res) => setTimeout(res, 800));
+          continue;
+        }
         const data = await r.json();
         if (r.ok && Array.isArray(data)) {
           setRoutines(data);
           setLoading(false);
           return;
         }
-        // 401 = sesión no lista aún, esperar y reintentar
-        // 500 = MongoDB cold start, esperar y reintentar
-      } catch {}
-      await new Promise((res) => setTimeout(res, 1500));
+        // 500 u otro error — esperar y reintentar
+        await new Promise((res) => setTimeout(res, 1000));
+      } catch {
+        await new Promise((res) => setTimeout(res, 1000));
+      }
     }
     setLoading(false);
   }, []);
 
+  // Fetchea inmediatamente al montar — la cookie ya está en el browser
+  // No esperar useSession: eso introduce el delay que causa el bug
   useEffect(() => {
-    if (status === "authenticated") {
-      refresh();
-    }
-  }, [status, refresh]);
+    refresh();
+  }, []); // eslint-disable-line
 
   return (
     <RoutinesContext.Provider value={{ routines, loading, refresh }}>

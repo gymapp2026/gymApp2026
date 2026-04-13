@@ -19,25 +19,31 @@ export function RoutinesProvider({ children }: { children: ReactNode }) {
   const { status } = useSession();
   const [routines, setRoutines] = useState<IRoutine[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fetched, setFetched] = useState(false);
 
-  const refresh = useCallback(() => {
-    fetch("/api/routines")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setRoutines(data);
-        setLoading(false);
-        setFetched(true);
-      })
-      .catch(() => setLoading(false));
+  const refresh = useCallback(async () => {
+    // Reintenta hasta 8 veces con 1.5s entre intentos (cubre cold start de MongoDB y Vercel)
+    for (let i = 0; i < 8; i++) {
+      try {
+        const r = await fetch("/api/routines");
+        const data = await r.json();
+        if (r.ok && Array.isArray(data)) {
+          setRoutines(data);
+          setLoading(false);
+          return;
+        }
+        // 401 = sesión no lista aún, esperar y reintentar
+        // 500 = MongoDB cold start, esperar y reintentar
+      } catch {}
+      await new Promise((res) => setTimeout(res, 1500));
+    }
+    setLoading(false);
   }, []);
 
-  // Fetchea una sola vez cuando la sesión está lista
   useEffect(() => {
-    if (status === "authenticated" && !fetched) {
+    if (status === "authenticated") {
       refresh();
     }
-  }, [status, fetched, refresh]);
+  }, [status, refresh]);
 
   return (
     <RoutinesContext.Provider value={{ routines, loading, refresh }}>

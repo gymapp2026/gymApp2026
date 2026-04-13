@@ -18,7 +18,9 @@ export default async function RoutinesPage() {
       .populate("days.exercises.exerciseId")
       .sort({ createdAt: -1 });
     initialRoutines = JSON.parse(JSON.stringify(routines));
-  } catch {}
+  } catch (err) {
+    console.error("[routines SSR] Error cargando rutinas:", err);
+  }
 
   return (
     <div>

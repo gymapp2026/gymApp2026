@@ -27,8 +27,8 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
 
-  const fetchData = useCallback(() => {
-    setLoading(true);
+  const fetchData = useCallback((showSpinner = true) => {
+    if (showSpinner) setLoading(true);
     fetch("/api/routines")
       .then((r) => r.json())
       .then((data) => {
@@ -46,13 +46,23 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
       .catch(() => {});
   }, []);
 
-  // Siempre fetchea cuando la sesión esté lista (igual que exercises)
+  // Fallback: si SSR no trajo datos, fetchea al autenticarse
   useEffect(() => {
-    if (status === "authenticated") fetchData();
-  }, [status, fetchData]);
+    if (status === "authenticated" && routines.length === 0) fetchData(true);
+  }, [status]); // eslint-disable-line
+
+  // gym-sessions siempre se carga por cliente
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/gym-sessions")
+        .then((r) => r.json())
+        .then((data) => { setGymCount(data.count ?? 0); setDoneToday(data.doneToday ?? false); })
+        .catch(() => {});
+    }
+  }, [status]);
 
   useEffect(() => {
-    const onFocus = () => { if (status === "authenticated") fetchData(); };
+    const onFocus = () => { if (status === "authenticated") fetchData(false); };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [status, fetchData]);

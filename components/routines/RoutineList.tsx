@@ -40,21 +40,22 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
 
-  const fetchRoutines = useCallback(() => {
-    setLoading(true);
+  const fetchRoutines = useCallback((showSpinner = true) => {
+    if (showSpinner) setLoading(true);
     fetch("/api/routines")
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setRoutines(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
-  // Siempre fetchea al autenticarse (igual que exercises — es el fallback si SSR falla)
+  // Fallback: si SSR no trajo datos, fetchea al autenticarse
   useEffect(() => {
-    if (status === "authenticated") fetchRoutines();
-  }, [status, fetchRoutines]);
+    if (status === "authenticated" && routines.length === 0) fetchRoutines(true);
+  }, [status]); // eslint-disable-line
 
   useEffect(() => {
-    const onFocus = () => { if (status === "authenticated") fetchRoutines(); };
+    // Al volver al foco (ej: después de crear rutina) — sin spinner para no parpadear
+    const onFocus = () => { if (status === "authenticated") fetchRoutines(false); };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [status, fetchRoutines]);

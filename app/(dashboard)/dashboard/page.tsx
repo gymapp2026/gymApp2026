@@ -16,7 +16,9 @@ export default async function DashboardPage() {
       .populate("days.exercises.exerciseId")
       .sort({ createdAt: -1 });
     initialRoutines = JSON.parse(JSON.stringify(routines));
-  } catch {}
+  } catch (err) {
+    console.error("[dashboard SSR] Error cargando rutinas:", err);
+  }
 
   return (
     <div className="space-y-6">

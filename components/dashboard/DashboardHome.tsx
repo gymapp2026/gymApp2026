@@ -1,71 +1,31 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRoutines } from "@/context/RoutinesContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Dumbbell, Plus, ChevronRight, CalendarCheck, Flame } from "lucide-react";
 import Link from "next/link";
-import { IRoutine } from "@/types";
 import { toast } from "sonner";
 
-function StatSkeleton() {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      {[1, 2].map((i) => (
-        <div key={i} className="h-20 rounded-xl bg-zinc-900 animate-pulse" />
-      ))}
-    </div>
-  );
-}
-
-export default function DashboardHome({ initialRoutines = [] }: { initialRoutines?: IRoutine[] }) {
+export default function DashboardHome() {
   const { status } = useSession();
-  // Si SSR trajo datos, arrancar con ellos y sin loading. Si no, arrancar en loading.
-  const [routines, setRoutines] = useState<IRoutine[]>(initialRoutines);
-  const [loading, setLoading] = useState(initialRoutines.length === 0);
+  const { routines, loading } = useRoutines();
   const [gymCount, setGymCount] = useState(0);
   const [doneToday, setDoneToday] = useState(false);
   const [marking, setMarking] = useState(false);
 
-  const fetchData = useCallback((showSpinner = true) => {
-    if (showSpinner) setLoading(true);
-    fetch("/api/routines")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setRoutines(data.slice(0, 3));
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-
-    fetch("/api/gym-sessions")
-      .then((r) => r.json())
-      .then((data) => {
-        setGymCount(data.count ?? 0);
-        setDoneToday(data.doneToday ?? false);
-      })
-      .catch(() => {});
-  }, []);
-
-  // Fallback: si SSR no trajo datos, fetchea al autenticarse
-  useEffect(() => {
-    if (status === "authenticated" && routines.length === 0) fetchData(true);
-  }, [status]); // eslint-disable-line
-
-  // gym-sessions siempre se carga por cliente
   useEffect(() => {
     if (status === "authenticated") {
       fetch("/api/gym-sessions")
         .then((r) => r.json())
-        .then((data) => { setGymCount(data.count ?? 0); setDoneToday(data.doneToday ?? false); })
+        .then((data) => {
+          setGymCount(data.count ?? 0);
+          setDoneToday(data.doneToday ?? false);
+        })
         .catch(() => {});
     }
   }, [status]);
-
-  useEffect(() => {
-    const onFocus = () => { if (status === "authenticated") fetchData(false); };
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [status, fetchData]);
 
   const markGymDay = async () => {
     if (doneToday || marking) return;
@@ -84,14 +44,17 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
     }
   };
 
-  const plannedDays = routines.length > 0
-    ? Math.max(...routines.map((r) => r.days.length))
-    : 0;
+  const recent = routines.slice(0, 3);
+  const plannedDays = routines.length > 0 ? Math.max(...routines.map((r) => r.days.length)) : 0;
 
   return (
     <div className="space-y-5">
       {/* Stats rápidas */}
-      {loading ? <StatSkeleton /> : (
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2].map((i) => <div key={i} className="h-20 rounded-xl bg-zinc-900 animate-pulse" />)}
+        </div>
+      ) : (
         <div className="grid grid-cols-2 gap-3">
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-4 flex items-center gap-3">
@@ -130,9 +93,7 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
             <div>
               <p className="text-sm font-semibold text-zinc-50">
                 Días de gym{" "}
-                <span className="text-yellow-400">
-                  {loading ? "..." : `${gymCount}/${plannedDays || "—"}`}
-                </span>{" "}
+                <span className="text-yellow-400">{`${gymCount}/${plannedDays || "—"}`}</span>{" "}
                 <span className="text-zinc-500 font-normal">esta semana</span>
               </p>
               <p className="text-xs text-zinc-500">
@@ -145,9 +106,7 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
             onClick={markGymDay}
             disabled={doneToday || marking}
             className={`rounded-xl font-semibold flex-shrink-0 ${
-              doneToday
-                ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
-                : "bg-yellow-500 hover:bg-yellow-400 text-zinc-950"
+              doneToday ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-400 text-zinc-950"
             }`}
           >
             <Flame size={14} className="mr-1" />
@@ -181,11 +140,9 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
 
         {loading ? (
           <div className="flex flex-col gap-3">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-16 rounded-2xl bg-zinc-900 animate-pulse" />
-            ))}
+            {[1, 2].map((i) => <div key={i} className="h-16 rounded-2xl bg-zinc-900 animate-pulse" />)}
           </div>
-        ) : routines.length === 0 ? (
+        ) : recent.length === 0 ? (
           <Card className="bg-zinc-900 border-zinc-800 border-dashed">
             <CardContent className="p-6 text-center">
               <p className="text-zinc-500 text-sm">Todavía no tenés rutinas creadas.</p>
@@ -196,7 +153,7 @@ export default function DashboardHome({ initialRoutines = [] }: { initialRoutine
           </Card>
         ) : (
           <div className="flex flex-col gap-3">
-            {routines.map((routine) => (
+            {recent.map((routine) => (
               <Link key={routine._id} href="/dashboard/routines" className="block">
                 <div className="bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition-colors rounded-2xl px-4 py-3.5 flex items-center justify-between">
                   <div>

@@ -1,7 +1,5 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import Routine from "@/models/Routine";
 import RoutineList from "@/components/routines/RoutineList";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -10,17 +8,6 @@ import Link from "next/link";
 export default async function RoutinesPage() {
   const session = await auth();
   if (!session) redirect("/login");
-
-  let initialRoutines: any[] = [];
-  try {
-    await connectDB();
-    const routines = await Routine.find({ userId: (session.user as any).id })
-      .populate("days.exercises.exerciseId")
-      .sort({ createdAt: -1 });
-    initialRoutines = JSON.parse(JSON.stringify(routines));
-  } catch (err) {
-    console.error("[routines SSR] Error cargando rutinas:", err);
-  }
 
   return (
     <div>
@@ -32,7 +19,7 @@ export default async function RoutinesPage() {
           </Link>
         </Button>
       </div>
-      <RoutineList initialRoutines={initialRoutines} />
+      <RoutineList />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRoutines } from "@/context/RoutinesContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ interface Props {
 
 export default function RoutineBuilder({ routineId, initialName = "", initialDescription = "", initialDays }: Props) {
   const router = useRouter();
+  const { refresh } = useRoutines();
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   const [days, setDays] = useState<RoutineDay[]>(initialDays ?? [{ day: "Lunes", exercises: [] }]);
@@ -79,7 +81,7 @@ export default function RoutineBuilder({ routineId, initialName = "", initialDes
       });
       if (!res.ok) throw new Error();
       toast.success(isEditing ? "Rutina actualizada!" : "Rutina creada!");
-      router.refresh();
+      refresh();
       router.push("/dashboard/routines");
     } catch {
       toast.error("Error al guardar la rutina");

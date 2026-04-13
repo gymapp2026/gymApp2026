@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRoutines } from "@/context/RoutinesContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -11,26 +12,20 @@ import { IRoutine } from "@/types";
 import { toast } from "sonner";
 
 function toYouTubeEmbed(url: string): string {
-  // youtu.be/ID
   const short = url.match(/youtu\.be\/([^?&]+)/);
   if (short) return `https://www.youtube.com/embed/${short[1]}`;
-  // youtube.com/shorts/ID
   const shorts = url.match(/youtube\.com\/shorts\/([^?&]+)/);
   if (shorts) return `https://www.youtube.com/embed/${shorts[1]}`;
-  // youtube.com/watch?v=ID
   const watch = url.match(/[?&]v=([^&]+)/);
   if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
-  // ya es embed
   return url;
 }
 
-export default function RoutineList({ initialRoutines = [] }: { initialRoutines?: IRoutine[] }) {
-  const { data: session, status } = useSession();
+export default function RoutineList() {
+  const { data: session } = useSession();
   const role = (session?.user as any)?.role;
   const isAdmin = role === "admin" || role === "superadmin";
-  const [routines, setRoutines] = useState<IRoutine[]>(initialRoutines);
-  // Si SSR trajo datos, no mostrar loading. Si no, esperar el fetch cliente.
-  const [loading, setLoading] = useState(initialRoutines.length === 0);
+  const { routines, loading, refresh } = useRoutines();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [completedExs, setCompletedExs] = useState<Set<string>>(new Set());
   const [videoEx, setVideoEx] = useState<{ name: string; exId?: string; videoUrl?: string; gifUrl?: string; description?: string } | null>(null);
@@ -40,31 +35,11 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
 
-  const fetchRoutines = useCallback((showSpinner = true) => {
-    if (showSpinner) setLoading(true);
-    fetch("/api/routines")
-      .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setRoutines(data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
-  // Fallback: si SSR no trajo datos, fetchea al autenticarse
-  useEffect(() => {
-    if (status === "authenticated" && routines.length === 0) fetchRoutines(true);
-  }, [status]); // eslint-disable-line
-
-  useEffect(() => {
-    // Al volver al foco (ej: después de crear rutina) — sin spinner para no parpadear
-    const onFocus = () => { if (status === "authenticated") fetchRoutines(false); };
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [status, fetchRoutines]);
-
   const deleteRoutine = async (id: string) => {
     if (!confirm("¿Eliminar esta rutina?")) return;
     await fetch(`/api/routines/${id}`, { method: "DELETE" });
     toast.success("Rutina eliminada");
-    fetchRoutines();
+    refresh();
   };
 
   const saveVideoUrl = async () => {
@@ -81,7 +56,7 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
       setVideoEx((prev) => prev ? { ...prev, videoUrl: newVideoUrl.trim() } : null);
       setNewVideoUrl("");
       setEditingVideo(false);
-      fetchRoutines();
+      refresh();
     } catch {
       toast.error("Error al guardar el video");
     } finally {
@@ -135,26 +110,16 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
                   </p>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-8 h-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg"
-                    onClick={(e) => { e.stopPropagation(); window.location.href = `/dashboard/routines/${routine._id}/edit`; }}
-                  >
+                  <Button variant="ghost" size="icon" className="w-8 h-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg"
+                    onClick={(e) => { e.stopPropagation(); window.location.href = `/dashboard/routines/${routine._id}/edit`; }}>
                     <Pencil size={14} />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-8 h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg"
-                    onClick={(e) => { e.stopPropagation(); deleteRoutine(routine._id); }}
-                  >
+                  <Button variant="ghost" size="icon" className="w-8 h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg"
+                    onClick={(e) => { e.stopPropagation(); deleteRoutine(routine._id); }}>
                     <Trash2 size={14} />
                   </Button>
                   <div className="w-7 h-7 flex items-center justify-center">
-                    {expanded === routine._id
-                      ? <ChevronUp size={16} className="text-zinc-400" />
-                      : <ChevronDown size={16} className="text-zinc-400" />}
+                    {expanded === routine._id ? <ChevronUp size={16} className="text-zinc-400" /> : <ChevronDown size={16} className="text-zinc-400" />}
                   </div>
                 </div>
               </button>
@@ -174,10 +139,8 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
                           return (
                             <div key={j} className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors ${done ? "bg-[#0dcf0d]/10" : "bg-zinc-800/50"}`}>
                               <div className="flex items-center gap-2 flex-1 min-w-0">
-                                <button
-                                  onClick={() => toggleEx(key)}
-                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${done ? "border-[#0dcf0d] bg-[#0dcf0d]" : "border-zinc-600 hover:border-[#0dcf0d]"}`}
-                                >
+                                <button onClick={() => toggleEx(key)}
+                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${done ? "border-[#0dcf0d] bg-[#0dcf0d]" : "border-zinc-600 hover:border-[#0dcf0d]"}`}>
                                   {done && <Check size={10} className="text-zinc-950" strokeWidth={3} />}
                                 </button>
                                 <span className={`text-sm truncate ${done ? "text-zinc-500 line-through" : "text-zinc-300"}`}>
@@ -188,8 +151,7 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
                                 <span className="text-xs text-zinc-500">{ex.sets}×{ex.reps}</span>
                                 <button
                                   onClick={() => { setNewVideoUrl(""); setEditingVideo(false); setVideoEx({ name: exData?.name || "Ejercicio", exId: exData?._id, videoUrl: exData?.videoUrl, gifUrl: exData?.gifUrl, description: exData?.description }); }}
-                                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${hasMedia ? "bg-zinc-700 hover:bg-zinc-600" : "bg-zinc-800 hover:bg-zinc-700"}`}
-                                >
+                                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${hasMedia ? "bg-zinc-700 hover:bg-zinc-600" : "bg-zinc-800 hover:bg-zinc-700"}`}>
                                   <Play size={12} className={hasMedia ? "text-[#0dcf0d]" : "text-zinc-500"} />
                                 </button>
                               </div>
@@ -206,24 +168,15 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
         ))}
       </div>
 
-      {/* Paginación */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
-          <button
-            onClick={() => { setPage((p) => p - 1); setExpanded(null); }}
-            disabled={page === 0}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
-          >
+          <button onClick={() => { setPage((p) => p - 1); setExpanded(null); }} disabled={page === 0}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors">
             <ChevronLeft size={15} /> Anterior
           </button>
-          <span className="text-xs text-zinc-500">
-            {page + 1} / {totalPages}
-          </span>
-          <button
-            onClick={() => { setPage((p) => p + 1); setExpanded(null); }}
-            disabled={page >= totalPages - 1}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
-          >
+          <span className="text-xs text-zinc-500">{page + 1} / {totalPages}</span>
+          <button onClick={() => { setPage((p) => p + 1); setExpanded(null); }} disabled={page >= totalPages - 1}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors">
             Siguiente <ChevronRight size={15} />
           </button>
         </div>
@@ -236,51 +189,24 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
               <DialogTitle className="text-zinc-50">{videoEx.name}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {videoEx.gifUrl && (
-                <img src={videoEx.gifUrl} alt={videoEx.name} className="w-full rounded-xl" />
-              )}
+              {videoEx.gifUrl && <img src={videoEx.gifUrl} alt={videoEx.name} className="w-full rounded-xl" />}
               {videoEx.videoUrl && !videoEx.gifUrl && (
                 <div className="space-y-2">
                   <div className="aspect-video rounded-xl overflow-hidden bg-zinc-800">
-                    <iframe
-                      src={toYouTubeEmbed(videoEx.videoUrl)}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                    <iframe src={toYouTubeEmbed(videoEx.videoUrl)} className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                   </div>
                   {!editingVideo && (
-                    <button
-                      onClick={() => { setNewVideoUrl(videoEx.videoUrl || ""); setEditingVideo(true); }}
-                      className="text-xs text-zinc-500 hover:text-[#0dcf0d] flex items-center gap-1 transition-colors"
-                    >
+                    <button onClick={() => { setNewVideoUrl(videoEx.videoUrl || ""); setEditingVideo(true); }}
+                      className="text-xs text-zinc-500 hover:text-[#0dcf0d] flex items-center gap-1 transition-colors">
                       <LinkIcon size={11} /> Editar video
                     </button>
                   )}
                   {editingVideo && (
                     <div className="flex gap-2">
-                      <Input
-                        placeholder="Nuevo link de YouTube..."
-                        value={newVideoUrl}
-                        onChange={(e) => setNewVideoUrl(e.target.value)}
-                        className="bg-zinc-700 border-zinc-600 text-zinc-100 text-sm h-9"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={saveVideoUrl}
-                        disabled={savingVideo || !newVideoUrl.trim()}
-                        className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 h-9 px-3 flex-shrink-0"
-                      >
-                        {savingVideo ? "..." : "Guardar"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setEditingVideo(false)}
-                        className="h-9 px-3 flex-shrink-0 text-zinc-400"
-                      >
-                        Cancelar
-                      </Button>
+                      <Input placeholder="Nuevo link de YouTube..." value={newVideoUrl} onChange={(e) => setNewVideoUrl(e.target.value)} className="bg-zinc-700 border-zinc-600 text-zinc-100 text-sm h-9" />
+                      <Button size="sm" onClick={saveVideoUrl} disabled={savingVideo || !newVideoUrl.trim()} className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 h-9 px-3 flex-shrink-0">{savingVideo ? "..." : "Guardar"}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingVideo(false)} className="h-9 px-3 flex-shrink-0 text-zinc-400">Cancelar</Button>
                     </div>
                   )}
                 </div>
@@ -292,28 +218,15 @@ export default function RoutineList({ initialRoutines = [] }: { initialRoutines?
                   <div className="w-full space-y-2">
                     <p className="text-xs text-zinc-400 text-center">Pegá el link de YouTube para agregar el video</p>
                     <div className="flex gap-2">
-                      <Input
-                        placeholder="https://youtube.com/watch?v=..."
-                        value={newVideoUrl}
-                        onChange={(e) => setNewVideoUrl(e.target.value)}
-                        className="bg-zinc-700 border-zinc-600 text-zinc-100 text-sm h-9"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={saveVideoUrl}
-                        disabled={savingVideo || !newVideoUrl.trim()}
-                        className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 h-9 px-3 flex-shrink-0"
-                      >
-                        <LinkIcon size={13} className="mr-1" />
-                        {savingVideo ? "..." : "Agregar"}
+                      <Input placeholder="https://youtube.com/watch?v=..." value={newVideoUrl} onChange={(e) => setNewVideoUrl(e.target.value)} className="bg-zinc-700 border-zinc-600 text-zinc-100 text-sm h-9" />
+                      <Button size="sm" onClick={saveVideoUrl} disabled={savingVideo || !newVideoUrl.trim()} className="bg-[#0dcf0d] hover:bg-[#0ab80a] text-zinc-950 h-9 px-3 flex-shrink-0">
+                        <LinkIcon size={13} className="mr-1" />{savingVideo ? "..." : "Agregar"}
                       </Button>
                     </div>
                   </div>
                 </div>
               )}
-              {videoEx.description && (
-                <p className="text-sm text-zinc-400 leading-relaxed">{videoEx.description}</p>
-              )}
+              {videoEx.description && <p className="text-sm text-zinc-400 leading-relaxed">{videoEx.description}</p>}
             </div>
           </DialogContent>
         )}
